@@ -26,29 +26,11 @@ jobs:
       # fail-fast: Default is true, switch to false to allow one platform to fail and still run others
       fail-fast: false
       matrix:
-        build_name: [gcc-10, apple-clang-11, apple-clang-14-armv8, msvc-2022]
+        build_name: [msvc-2022]
         include:
-        - build_name: gcc-10
-          compiler: gcc
-          version: 10
-          os: ubuntu-20.04
-          # dockerImage: conanio/gcc10-ubuntu16.04:latest
-          allow_failure: false
-        - build_name: apple-clang-11
-          compiler: apple-clang
-          version: 11
-          os: macos-11
-          SDKROOT: /Applications/Xcode_11.7.app
-          allow_failure: false
-        - build_name: apple-clang-14-armv8
-          compiler: apple-clang
-          version: 14
-          os: macos-14
-          SDKROOT: /Applications/Xcode_14.3.1.app
-          allow_failure: false
         - build_name: msvc-2022
           compiler: msvc
-          version: 193
+          version: 194
           os: windows-2022
           allow_failure: false
 
@@ -71,7 +53,7 @@ jobs:
       shell: bash
       run: |
         set -x
-        pip install conan==2.2.2
+        pip install conan==2.3.1
 
         conan --version
         if [ "$RUNNER_OS" == "Windows" ]; then
@@ -134,17 +116,17 @@ jobs:
         # Mac has the FreeBSD flavor of sed and MUST take a backup suffix...
         sed -i.bak 's/cppstd=.*$/cppstd=20/g' $CONAN_PROFILE_DEFAULT
         # Modify the profile file directly
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          # Use sed with in-place editing
-          sed -i.bak 's/compiler.cppstd=.*$/compiler.cppstd=20/g' "$CONAN_PROFILE_DEFAULT"
-          sed -i.bak 's/compiler.version=.*$/compiler.version=193/g' "$CONAN_PROFILE_DEFAULT"
-          sed -i.bak 's/compiler.runtime=.*$/compiler.runtime=dynamic/g' "$CONAN_PROFILE_DEFAULT"
-          sed -i.bak 's/compiler.runtime_type=.*$/compiler.runtime_type=Release/g' "$CONAN_PROFILE_DEFAULT"
-          # Remove any existing vcvars_ver configuration
-          sed -i.bak '/tools.microsoft.msbuild:vcvars_ver/d' "$CONAN_PROFILE_DEFAULT"
-          # Add the correct vs_version
-          echo -e "\n[conf]\ntools.microsoft.msbuild:vs_version=17" >> "$CONAN_PROFILE_DEFAULT"
-        fi
+        # if [ "$RUNNER_OS" == "Windows" ]; then
+        #   # Use sed with in-place editing
+        #   sed -i.bak 's/compiler.cppstd=.*$/compiler.cppstd=20/g' "$CONAN_PROFILE_DEFAULT"
+        #   sed -i.bak 's/compiler.version=.*$/compiler.version=193/g' "$CONAN_PROFILE_DEFAULT"
+        #   sed -i.bak 's/compiler.runtime=.*$/compiler.runtime=dynamic/g' "$CONAN_PROFILE_DEFAULT"
+        #   sed -i.bak 's/compiler.runtime_type=.*$/compiler.runtime_type=Release/g' "$CONAN_PROFILE_DEFAULT"
+        #   # Remove any existing vcvars_ver configuration
+        #   sed -i.bak '/tools.microsoft.msbuild:vcvars_ver/d' "$CONAN_PROFILE_DEFAULT"
+        #   # Add the correct vs_version
+        #   echo -e "\n[conf]\ntools.microsoft.msbuild:vs_version=17" >> "$CONAN_PROFILE_DEFAULT"
+        # fi
         rm -Rf $CONAN_PROFILE_DEFAULT.bak || true
         conan profile show
 
@@ -194,23 +176,12 @@ jobs:
       run: |
         echo "Yes"
 
-    - name: Build Unix
-      if: runner.os != 'Windows'
-      shell: bash
-      run: |
-        set -x
-        conan install . --output-folder=../os-gems-deps --build=missing -s:a build_type=Release -s:a compiler.cppstd=20 -o '*/*:shared=False'
-        . ../os-gems-deps/conanbuild.sh
-        ruby --version
-        sqlite3 --version
-        echo $PKG_CONFIG_PATH
-        gem install rake
-        rake make_package
-
+      
     - name: Build Windows
       if: runner.os == 'Windows'
       shell: pwsh
       run: |
+        conan profile detect --force --name default
         # Set-PSDebug -Trace 1
         # LongPathsEnabled is already the case for the runner: https://github.com/actions/runner-images/blob/13d5100df5e7d490b069f0e284dffbc8e321a756/images/windows/scripts/build/Configure-BaseImage.ps1#L73
         # But git isn't
@@ -227,7 +198,7 @@ jobs:
         echo $env:PKG_CONFIG_PATH
         gem install rake
         rake make_package
-
+  
     - name: Archive TGZ or ZIP artifacts
       uses: actions/upload-artifact@v4
       with:
