@@ -31,11 +31,9 @@ if LOCAL_DEV
 
   gem 'oslg', path: '../oslg'
   if !MINIMAL_GEMS
-    gem 'tbd', path: '../tbd'
     gem 'osut', path: '../osut'
     gem 'openstudio-standards', '= 0.6.1', path: '../openstudio-standards'
     gem 'openstudio-extension', '= 0.8.0', path: '../openstudio-extension-gem'
-    gem 'openstudio-workflow', '= 2.4.0', path: '../OpenStudio-workflow-gem'
     gem 'openstudio_measure_tester', '= 0.4.0', path: "../OpenStudio-measure-tester-gem"
     gem 'bcl', path: '../bcl-gem'
   end
@@ -56,7 +54,6 @@ elsif !FINAL_PACKAGE
   gem 'oslg', '= 0.3.0'
 
   if !MINIMAL_GEMS
-    gem 'tbd', '= 3.4.2'
     gem 'osut', '= 0.5.0'
 
     # gem 'openstudio-standards', '= 0.6.0.rc1', :github => 'NREL/openstudio-standards', :ref => 'v0.6.0.rc1'
@@ -66,7 +63,6 @@ elsif !FINAL_PACKAGE
     # gem 'bcl', "= 0.8.0", :github => 'NREL/bcl-gem', :ref => '3c60cadc781410819e7c9bfb8d7ba1af146d9abd'
     gem 'openstudio-standards', '= 0.6.1'
     gem 'openstudio-extension', '= 0.8.0'
-    gem 'openstudio-workflow', '= 2.4.0'
     gem 'openstudio_measure_tester', '= 0.4.0'
     gem 'bcl', "= 0.8.0"
 
@@ -96,12 +92,10 @@ else
   gem 'oslg', '= 0.3.0'
 
   if !MINIMAL_GEMS
-    gem 'tbd', '= 3.4.2'
     gem 'osut', '= 0.5.0'
 
     gem 'openstudio-standards', '= 0.6.1'
     gem 'openstudio-extension', '= 0.8.0'
-    gem 'openstudio-workflow', '= 2.4.0'
     gem 'openstudio_measure_tester', '= 0.4.0'
     gem 'bcl', "= 0.8.0"
   end
